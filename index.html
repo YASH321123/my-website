@@ -1,0 +1,3680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CoachTV — AI Fitness Coach</title>
+
+<style>
+:root {
+  --bg: #05070b;
+  --bg2: #0a0e16;
+  --panel: #0f141e;
+  --panel2: #141b27;
+  --orange: #ff6a00;
+  --orange2: #ff8a3d;
+  --white: #f8fafc;
+  --muted: #8d98aa;
+  --green: #35e89a;
+  --red: #ff4d5e;
+  --yellow: #ffc857;
+  --border: rgba(255,255,255,.08);
+  --shadow: 0 20px 70px rgba(0,0,0,.45);
+  --radius: 22px;
+  --focus: 0 0 0 4px rgba(255,106,0,.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.app {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(255,106,0,.12), transparent 28%),
+    radial-gradient(circle at 0% 70%, rgba(31,84,151,.10), transparent 30%),
+    var(--bg);
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.sidebar {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: 230px;
+  height: 100vh;
+  padding: 28px 18px;
+  border-right: 1px solid var(--border);
+  background: rgba(5,7,11,.92);
+  backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 10px 28px;
+}
+
+.logo-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff8a3d, #ff4d00);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #111;
+  box-shadow: 0 8px 30px rgba(255,106,0,.25);
+}
+
+.logo strong {
+  font-size: 19px;
+  letter-spacing: -.5px;
+}
+
+.logo span {
+  color: var(--orange);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.nav button {
+  color: var(--muted);
+  border: 0;
+  background: transparent;
+  padding: 14px 15px;
+  border-radius: 13px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  transition: .2s;
+}
+
+.nav button:hover,
+.nav button.active,
+.nav button:focus-visible {
+  color: white;
+  background: rgba(255,255,255,.07);
+  outline: none;
+}
+
+.nav button.active {
+  box-shadow: inset 3px 0 0 var(--orange);
+  background: linear-gradient(90deg, rgba(255,106,0,.14), transparent);
+}
+
+.nav-icon {
+  width: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+}
+
+.demo-badge {
+  border: 1px solid rgba(255,106,0,.25);
+  background: rgba(255,106,0,.08);
+  color: #ff9c5d;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.tv-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.switch {
+  width: 42px;
+  height: 24px;
+  border-radius: 30px;
+  background: #222a36;
+  padding: 3px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.switch i {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: .2s;
+}
+
+.switch.on {
+  background: var(--orange);
+}
+
+.switch.on i {
+  transform: translateX(18px);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main {
+  margin-left: 230px;
+  min-height: 100vh;
+  padding: 30px 38px 70px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.breadcrumb {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #9ff2ca;
+  background: rgba(53,232,154,.07);
+  border: 1px solid rgba(53,232,154,.15);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--green);
+}
+
+.page {
+  display: none;
+  animation: pageIn .35s ease;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   COMMON
+========================= */
+
+h1, h2, h3, p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(34px, 5vw, 62px);
+  line-height: .98;
+  letter-spacing: -3px;
+}
+
+h2 {
+  font-size: 28px;
+  letter-spacing: -1px;
+}
+
+h3 {
+  font-size: 17px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.orange {
+  color: var(--orange);
+}
+
+.section {
+  margin-top: 42px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.section-head h2 {
+  margin-bottom: 4px;
+}
+
+.section-head p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.btn {
+  border: 0;
+  border-radius: 13px;
+  padding: 13px 18px;
+  color: white;
+  background: #1a212d;
+  font-weight: 800;
+  transition: .2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  background: #252e3c;
+}
+
+.btn:focus-visible,
+.card:focus-visible,
+.nav button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--orange2), var(--orange));
+  color: #15100d;
+  box-shadow: 0 12px 35px rgba(255,106,0,.2);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ff9b57, #ff7616);
+}
+
+.btn-lg {
+  padding: 16px 25px;
+  font-size: 15px;
+  border-radius: 15px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  background: linear-gradient(145deg, rgba(20,27,39,.95), rgba(10,14,22,.95));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,.14);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffad7c;
+  background: rgba(255,106,0,.09);
+  border: 1px solid rgba(255,106,0,.18);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.hero {
+  min-height: 460px;
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  background:
+    linear-gradient(90deg, rgba(5,7,11,.98) 0%, rgba(5,7,11,.85) 46%, rgba(5,7,11,.1)),
+    radial-gradient(circle at 80% 50%, rgba(255,106,0,.25), transparent 30%),
+    #101722;
+  border: 1px solid var(--border);
+}
+
+.hero-copy {
+  padding: 60px 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-copy h1 {
+  max-width: 650px;
+  margin: 24px 0 18px;
+}
+
+.hero-copy p {
+  max-width: 550px;
+  color: #aab4c4;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.tv-preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 45px;
+}
+
+.tv-frame {
+  width: 90%;
+  aspect-ratio: 16/10;
+  background: #030507;
+  border: 8px solid #1f2732;
+  border-radius: 20px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.7), 0 0 80px rgba(255,106,0,.1);
+  transform: perspective(900px) rotateY(-5deg) rotateX(2deg);
+  overflow: hidden;
+  position: relative;
+}
+
+.tv-screen {
+  height: 100%;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255,106,0,.22), transparent 28%),
+    linear-gradient(135deg, #111924, #05080d);
+}
+
+.screen-top {
+  display: flex;
+  justify-content: space-between;
+  color: #8994a5;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.virtual-person {
+  width: 115px;
+  height: 180px;
+  position: absolute;
+  left: 42%;
+  top: 27%;
+}
+
+.person-head {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f2c2a4;
+  margin: auto;
+}
+
+.person-body {
+  width: 45px;
+  height: 82px;
+  border-radius: 22px 22px 12px 12px;
+  background: linear-gradient(#ff7730, #ff4d00);
+  margin: 8px auto;
+}
+
+.person-leg {
+  position: absolute;
+  width: 15px;
+  height: 72px;
+  background: #242d3a;
+  top: 112px;
+  border-radius: 10px;
+}
+
+.person-leg.l { left: 39px; transform: rotate(15deg); }
+.person-leg.r { right: 39px; transform: rotate(-15deg); }
+
+.screen-exercise {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+}
+
+.screen-exercise strong {
+  font-size: 19px;
+}
+
+.screen-progress {
+  height: 4px;
+  background: #28313e;
+  border-radius: 10px;
+  margin-top: 10px;
+  width: 180px;
+}
+
+.screen-progress i {
+  display: block;
+  height: 100%;
+  width: 72%;
+  background: var(--orange);
+}
+
+/* =========================
+   WORKOUT CARDS
+========================= */
+
+.workout-row {
+  grid-template-columns: repeat(5, minmax(150px,1fr));
+}
+
+.workout-card {
+  min-height: 180px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.workout-card::before {
+  content: "";
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  right: -30px;
+  top: -30px;
+  border-radius: 50%;
+  background: var(--accent, rgba(255,106,0,.14));
+  filter: blur(15px);
+}
+
+.workout-icon {
+  font-size: 31px;
+  margin-bottom: 25px;
+}
+
+.workout-card h3 {
+  margin-bottom: 7px;
+}
+
+.workout-meta {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.recommended {
+  grid-template-columns: repeat(4,1fr);
+}
+
+.rec-card {
+  min-height: 180px;
+  padding: 22px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.rec-art {
+  height: 85px;
+  border-radius: 15px;
+  margin-bottom: 16px;
+  background:
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,.18), transparent 20%),
+    linear-gradient(135deg, #272d39, #10151e);
+  display: grid;
+  place-items: center;
+  font-size: 35px;
+}
+
+.rec-card h3 {
+  margin: 0 0 5px;
+}
+
+/* =========================
+   MODALS / SETUP
+========================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.modal {
+  width: min(900px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  background: #0b1018;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  box-shadow: 0 40px 120px rgba(0,0,0,.75);
+  padding: 30px;
+}
+
+.modal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #171d27;
+  color: white;
+}
+
+.setup-progress {
+  display: flex;
+  gap: 6px;
+  margin: 25px 0 32px;
+}
+
+.setup-progress i {
+  height: 4px;
+  flex: 1;
+  background: #202936;
+  border-radius: 10px;
+}
+
+.setup-progress i.active {
+  background: var(--orange);
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+}
+
+.option {
+  min-height: 105px;
+  padding: 20px;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  background: #111722;
+  color: white;
+  text-align: left;
+  transition: .2s;
+}
+
+.option:hover,
+.option.selected {
+  border-color: var(--orange);
+  background: rgba(255,106,0,.1);
+  transform: translateY(-2px);
+}
+
+.option strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.option small {
+  color: var(--muted);
+}
+
+.setup-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 28px;
+}
+
+/* =========================
+   WORKOUT PLAYER
+========================= */
+
+.workout-player {
+  display: grid;
+  grid-template-columns: 1.45fr .7fr;
+  gap: 18px;
+}
+
+.exercise-stage {
+  min-height: 640px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255,106,0,.13), transparent 30%),
+    #080c12;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-top {
+  position: absolute;
+  top: 22px;
+  left: 24px;
+  right: 24px;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+}
+
+.stage-badge {
+  padding: 8px 11px;
+  border-radius: 9px;
+  background: rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.1);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.coach-figure {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: 220px;
+  height: 390px;
+}
+
+.cf-head {
+  width: 62px;
+  height: 62px;
+  background: #e8b797;
+  border-radius: 50%;
+  margin: auto;
+  border: 4px solid rgba(255,255,255,.12);
+}
+
+.cf-torso {
+  width: 105px;
+  height: 145px;
+  background: linear-gradient(145deg,#ff8a3d,#ef4d00);
+  border-radius: 45px 45px 22px 22px;
+  margin: 12px auto 0;
+}
+
+.cf-arm {
+  position: absolute;
+  width: 26px;
+  height: 125px;
+  background: #e8b797;
+  border-radius: 20px;
+  top: 80px;
+}
+
+.cf-arm.left {
+  left: 27px;
+  transform: rotate(28deg);
+}
+
+.cf-arm.right {
+  right: 27px;
+  transform: rotate(-28deg);
+}
+
+.cf-leg {
+  position: absolute;
+  width: 36px;
+  height: 160px;
+  background: #27303e;
+  border-radius: 25px;
+  top: 225px;
+}
+
+.cf-leg.left {
+  left: 74px;
+  transform: rotate(12deg);
+}
+
+.cf-leg.right {
+  right: 74px;
+  transform: rotate(-12deg);
+}
+
+.skeleton {
+  position: absolute;
+  inset: 80px;
+  pointer-events: none;
+}
+
+.joint {
+  width: 9px;
+  height: 9px;
+  background: #45e6ff;
+  box-shadow: 0 0 14px #45e6ff;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.j1 { top: 15%; left: 48%; }
+.j2 { top: 34%; left: 37%; }
+.j3 { top: 34%; left: 59%; }
+.j4 { top: 55%; left: 33%; }
+.j5 { top: 55%; left: 64%; }
+.j6 { top: 72%; left: 40%; }
+.j7 { top: 72%; left: 58%; }
+
+.pose-line {
+  position: absolute;
+  height: 2px;
+  background: rgba(69,230,255,.7);
+  transform-origin: left center;
+}
+
+.form-overlay {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: 240px;
+  padding: 17px;
+  background: rgba(7,10,15,.8);
+  border: 1px solid rgba(69,230,255,.15);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+}
+
+.form-overlay h4 {
+  color: #45e6ff;
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.good {
+  color: var(--green);
+}
+
+.warning {
+  color: var(--yellow);
+}
+
+.exercise-label {
+  position: absolute;
+  left: 28px;
+  bottom: 25px;
+}
+
+.exercise-label .big {
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.exercise-label small {
+  color: var(--muted);
+}
+
+.workout-side {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.side-panel {
+  padding: 22px;
+}
+
+.side-stat {
+  margin-bottom: 22px;
+}
+
+.side-stat-label {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+
+.side-stat-value {
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.progress-track {
+  height: 8px;
+  background: #202734;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-track i {
+  display: block;
+  height: 100%;
+  width: 72%;
+  background: linear-gradient(90deg, var(--orange), #ffb067);
+  transition: width .4s;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: #a8f6d0;
+}
+
+.workout-controls {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 8px;
+}
+
+.workout-controls button {
+  min-height: 50px;
+}
+
+.ask-btn {
+  grid-column: span 2;
+}
+
+/* =========================
+   CAMERA
+========================= */
+
+.camera-panel {
+  position: relative;
+  min-height: 270px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #05080c;
+  border: 1px solid var(--border);
+}
+
+#cameraVideo {
+  width: 100%;
+  height: 100%;
+  min-height: 270px;
+  object-fit: cover;
+  display: none;
+}
+
+.demo-camera {
+  height: 100%;
+  min-height: 270px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.6)),
+    radial-gradient(circle at 50% 45%, rgba(255,106,0,.18), transparent 30%),
+    #0a0f17;
+}
+
+.demo-person {
+  width: 85px;
+  height: 165px;
+  position: relative;
+}
+
+.demo-person::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 26px;
+  width: 32px;
+  height: 32px;
+  background: #e8b797;
+  border-radius: 50%;
+}
+
+.demo-person::after {
+  content: "";
+  position: absolute;
+  top: 42px;
+  left: 13px;
+  width: 60px;
+  height: 92px;
+  background: linear-gradient(#ff7730,#ef4d00);
+  border-radius: 25px;
+}
+
+.camera-label {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.65);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.camera-toggle {
+  position: absolute;
+  bottom: 13px;
+  left: 13px;
+  right: 13px;
+  display: flex;
+  gap: 7px;
+}
+
+.form-warning {
+  background: rgba(255,77,94,.1);
+  border: 1px solid rgba(255,77,94,.3);
+  padding: 12px;
+  border-radius: 12px;
+  color: #ff9ba5;
+  font-size: 11px;
+  animation: warning .3s ease;
+}
+
+@keyframes warning {
+  from { transform: scale(.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* =========================
+   CHAT
+========================= */
+
+.chat {
+  height: 510px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.message {
+  max-width: 82%;
+  padding: 13px 15px;
+  border-radius: 15px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.message.coach {
+  background: #171e29;
+  border: 1px solid var(--border);
+}
+
+.message.user {
+  margin-left: auto;
+  background: linear-gradient(135deg,#ff7a22,#e95300);
+  color: #130b06;
+}
+
+.chat-input {
+  padding: 13px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #090d14;
+  color: white;
+  padding: 12px;
+  outline: none;
+}
+
+.chat-input input:focus {
+  border-color: var(--orange);
+}
+
+.mic-listening {
+  animation: pulse 1s infinite;
+  background: #b62939 !important;
+}
+
+@keyframes pulse {
+  50% { box-shadow: 0 0 0 9px rgba(255,77,94,.1); }
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.stat-grid {
+  grid-template-columns: repeat(4,1fr);
+}
+
+.stat-card {
+  padding: 22px;
+}
+
+.stat-card small {
+  color: var(--muted);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.stat-card strong {
+  font-size: 30px;
+}
+
+.stat-card span {
+  color: var(--green);
+  font-size: 11px;
+}
+
+.chart-card {
+  padding: 25px;
+  min-height: 300px;
+}
+
+.chart {
+  width: 100%;
+  height: 220px;
+}
+
+.chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.insights {
+  grid-template-columns: repeat(3,1fr);
+}
+
+.insight {
+  padding: 20px;
+}
+
+.insight-icon {
+  font-size: 25px;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   PROFILE / SETTINGS
+========================= */
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: .7fr 1.3fr;
+  gap: 18px;
+}
+
+.profile-card {
+  padding: 30px;
+  text-align: center;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#ff9c5b,#e84d00);
+  display: grid;
+  place-items: center;
+  color: #211008;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.profile-details {
+  padding: 25px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-row:last-child {
+  border-bottom: 0;
+}
+
+.detail-row span {
+  color: var(--muted);
+}
+
+.settings {
+  max-width: 900px;
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting:last-child {
+  border-bottom: 0;
+}
+
+.setting strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.setting small {
+  color: var(--muted);
+}
+
+/* =========================
+   ARCHITECTURE
+========================= */
+
+.architecture {
+  padding: 25px;
+}
+
+.arch-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 35px 0;
+}
+
+.arch-node {
+  min-width: 125px;
+  padding: 17px;
+  border-radius: 15px;
+  border: 1px solid var(--border);
+  background: #111722;
+  text-align: center;
+}
+
+.arch-node .arch-icon {
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+.arch-node small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.arch-arrow {
+  color: var(--orange);
+  font-size: 20px;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+}
+
+.tech {
+  padding: 18px;
+  background: #111722;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.tech strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.tech small {
+  color: var(--muted);
+}
+
+/* =========================
+   COMPLETION
+========================= */
+
+.completion {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.score-ring {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  margin: 35px auto;
+  background: conic-gradient(var(--orange) 0 91%, #202734 91% 100%);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.score-ring::after {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border-radius: 50%;
+  background: #0a0e15;
+}
+
+.score-number {
+  position: relative;
+  z-index: 2;
+}
+
+.score-number strong {
+  font-size: 55px;
+  display: block;
+  line-height: .9;
+}
+
+.score-number small {
+  color: var(--muted);
+}
+
+.result-grid {
+  grid-template-columns: repeat(5,1fr);
+  margin: 30px 0;
+}
+
+.result-card {
+  padding: 18px 10px;
+}
+
+.result-card small {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.result-card strong {
+  font-size: 20px;
+}
+
+.summary-card {
+  text-align: left;
+  padding: 25px;
+  margin-bottom: 22px;
+}
+
+.summary-card p {
+  color: #aeb7c6;
+  line-height: 1.7;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* =========================
+   FIRE TV REMOTE
+========================= */
+
+.remote {
+  position: fixed;
+  z-index: 80;
+  right: 22px;
+  bottom: 22px;
+  width: 155px;
+  padding: 15px;
+  border-radius: 27px;
+  background: linear-gradient(160deg,#252b34,#10141b);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 25px 70px rgba(0,0,0,.65);
+  display: none;
+}
+
+.remote.visible {
+  display: block;
+}
+
+.remote-title {
+  color: #777f8c;
+  text-align: center;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.dpad {
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  position: relative;
+}
+
+.remote-key {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  color: #ddd;
+  background: #151a21;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+.remote-key:hover {
+  background: #2d3540;
+}
+
+.remote-key.up { left: 33px; top: 0; border-radius: 12px 12px 5px 5px; }
+.remote-key.down { left: 33px; bottom: 0; border-radius: 5px 5px 12px 12px; }
+.remote-key.left { left: 0; top: 33px; border-radius: 12px 5px 5px 12px; }
+.remote-key.right { right: 0; top: 33px; border-radius: 5px 12px 12px 5px; }
+.remote-key.ok { left: 33px; top: 33px; border-radius: 50%; background: #272e38; }
+
+.remote-bottom {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 6px;
+  margin-top: 15px;
+}
+
+.remote-bottom button {
+  border: 0;
+  background: #151a21;
+  color: #9ba4b2;
+  border-radius: 8px;
+  min-height: 28px;
+  font-size: 8px;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast-container {
+  position: fixed;
+  z-index: 200;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: #151c27;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  padding: 14px 17px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  animation: toastIn .3s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.loader {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 25px;
+  border-radius: 50%;
+  border: 4px solid #242c38;
+  border-top-color: var(--orange);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-step {
+  color: var(--muted);
+  min-height: 25px;
+}
+
+/* =========================
+   TV MODE
+========================= */
+
+body.tv-mode {
+  font-size: 1.12em;
+}
+
+body.tv-mode .sidebar {
+  width: 270px;
+}
+
+body.tv-mode .main {
+  margin-left: 270px;
+  padding: 38px 50px 90px;
+}
+
+body.tv-mode .btn {
+  padding: 17px 25px;
+}
+
+body.tv-mode .card,
+body.tv-mode .option {
+  border-width: 2px;
+}
+
+body.tv-mode .remote {
+  transform: scale(1.08);
+  transform-origin: bottom right;
+}
+
+body.tv-mode .hero {
+  min-height: 540px;
+}
+
+body.tv-mode .nav button {
+  padding: 18px;
+  font-size: 15px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 80px;
+    padding: 22px 10px;
+  }
+
+  .logo strong,
+  .nav button span:not(.nav-icon),
+  .sidebar-bottom {
+    display: none;
+  }
+
+  .logo {
+    justify-content: center;
+    padding: 0 0 25px;
+  }
+
+  .nav button {
+    justify-content: center;
+    padding: 14px 8px;
+  }
+
+  .main {
+    margin-left: 80px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .tv-preview {
+    display: none;
+  }
+
+  .workout-row {
+    grid-template-columns: repeat(3,1fr);
+  }
+
+  .recommended {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .workout-player {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .main {
+    margin-left: 0;
+    padding: 20px 15px 70px;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: 68px;
+    padding: 5px;
+    border-right: 0;
+    border-top: 1px solid var(--border);
+    z-index: 70;
+  }
+
+  .logo {
+    display: none;
+  }
+
+  .nav {
+    flex-direction: row;
+    justify-content: space-around;
+    height: 100%;
+  }
+
+  .nav button {
+    flex: 1;
+    justify-content: center;
+    padding: 7px;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+  }
+
+  .topbar {
+    margin-bottom: 18px;
+  }
+
+  .status-pill {
+    display: none;
+  }
+
+  .hero-copy {
+    padding: 35px 25px;
+  }
+
+  h1 {
+    font-size: 43px;
+  }
+
+  .workout-row,
+  .recommended,
+  .stat-grid,
+  .insights,
+  .result-grid,
+  .tech-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .option-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .exercise-stage {
+    min-height: 500px;
+  }
+
+  .remote {
+    display: none !important;
+  }
+
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TV focus */
+.tv-focus {
+  box-shadow: 0 0 0 4px var(--orange), 0 0 35px rgba(255,106,0,.28) !important;
+  transform: scale(1.025);
+  position: relative;
+  z-index: 5;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<!-- ================= NAV ================= -->
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">C</div>
+    <strong>YASH<span>TV</span></strong>
+  </div>
+
+  <nav class="nav">
+    <button class="active" data-page="home">
+      <span class="nav-icon">⌂</span><span>Home</span>
+    </button>
+    <button data-page="workouts">
+      <span class="nav-icon">◈</span><span>Workouts</span>
+    </button>
+    <button data-page="coach">
+      <span class="nav-icon">✦</span><span>AI Coach</span>
+    </button>
+    <button data-page="progress">
+      <span class="nav-icon">◒</span><span>Progress</span>
+    </button>
+    <button data-page="profile">
+      <span class="nav-icon">○</span><span>Profile</span>
+    </button>
+    <button data-page="settings">
+      <span class="nav-icon">⚙</span><span>Settings</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="demo-badge">HACKATHON DEMO</div>
+    <div class="tv-switch">
+      <span>TV Mode</span>
+      <div class="switch" id="tvSwitch"><i></i></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="breadcrumb" id="breadcrumb">CoachTV / Home</div>
+    <div class="status-pill">
+      <span class="dot"></span>
+      COACH AI ACTIVE
+    </div>
+  </div>
+
+  <!-- ================= HOME ================= -->
+
+  <section class="page active" id="page-home">
+
+    <div class="hero">
+      <div class="hero-copy">
+        <span class="tag">● AI-POWERED • REAL-TIME FORM ANALYSIS</span>
+
+        <h1>Your AI Fitness Coach.<br><span class="orange">On Your TV.</span></h1>
+
+        <p>
+          Train smarter with personalized workouts, real-time form feedback,
+          and an AI coach that adapts to you.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="openSetup()">
+            ▶ Start Workout
+          </button>
+
+          <button class="btn btn-lg" onclick="navigate('coach')">
+            ✦ Try AI Coach
+          </button>
+        </div>
+      </div>
+
+      <div class="tv-preview">
+        <div class="tv-frame">
+          <div class="tv-screen">
+            <div class="screen-top">
+              <span>COACHTV</span>
+              <span>● LIVE FORM ANALYSIS</span>
+            </div>
+
+            <div class="virtual-person">
+              <div class="person-head"></div>
+              <div class="person-body"></div>
+              <div class="person-leg l"></div>
+              <div class="person-leg r"></div>
+            </div>
+
+            <div class="screen-exercise">
+              <strong>SQUAT</strong>
+              <div class="screen-progress"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h2>Quick Start</h2>
+          <p>Jump straight into a focused session.</p>
+        </div>
+      </div>
+
+      <div class="grid workout-row">
+        <div class="card workout-card" onclick="quickWorkout('10 min Full Body')">
+          <div class="workout-icon">🔥</div>
+          <h3>10 min Full Body</h3>
+          <div class="workout-meta">10 min • Beginner</div>
+        </div>
+
+        <div class="card workout-card" onclick="quickWorkout('20 min Strength')">
+          <div class="workout-icon">💪</div>
+          <h3>20 min Strength</h3>
+          <div class="workout-meta">20 min • Intermediate</div>
+        </div>
+
+        <div class="card workout-card" onclick="quickWorkout('15 min HIIT')">
+          <div class="workout-icon">⚡</div>
+          <h3>15 min HIIT</h3>
+          <div class="workout-meta">15 min • Advanced</div>
+        </div>
+
+        <div class="card workout-card" onclick="quickWorkout('30 min Cardio')">
+          <div class="workout-icon">🏃</div>
+          <h3>30 min Cardio</h3>
+          <div class="workout-meta">30 min • Intermediate</div>
+        </div>
+
+        <div class="card workout-card" onclick="quickWorkout('Stretch & Recovery')">
+          <div class="workout-icon">🧘</div>
+          <h3>Stretch & Recovery</h3>
+          <div class="workout-meta">15 min • Recovery</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h2>Recommended For You</h2>
+          <p>Based on your goals and recent sessions.</p>
+        </div>
+      </div>
+
+      <div class="grid recommended">
+        <div class="card rec-card" onclick="quickWorkout('Upper Body Strength')">
+          <div class="rec-art">🏋️</div>
+          <h3>Upper Body Strength</h3>
+          <div class="workout-meta">20 min • 8 exercises</div>
+        </div>
+
+        <div class="card rec-card" onclick="quickWorkout('Beginner HIIT')">
+          <div class="rec-art">⚡</div>
+          <h3>Beginner HIIT</h3>
+          <div class="workout-meta">15 min • Low impact</div>
+        </div>
+
+        <div class="card rec-card" onclick="quickWorkout('Core Builder')">
+          <div class="rec-art">🔥</div>
+          <h3>Core Builder</h3>
+          <div class="workout-meta">18 min • 6 exercises</div>
+        </div>
+
+        <div class="card rec-card" onclick="quickWorkout('Mobility Flow')">
+          <div class="rec-art">🧘</div>
+          <h3>Mobility Flow</h3>
+          <div class="workout-meta">12 min • Recovery</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WORKOUTS ================= -->
+
+  <section class="page" id="page-workouts">
+    <div class="section-head">
+      <div>
+        <h2>Workout Library</h2>
+        <p>AI-curated sessions for every fitness goal.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openSetup()">✦ Generate Workout</button>
+    </div>
+
+    <div class="grid recommended">
+      <div class="card rec-card" onclick="quickWorkout('Full Body Power')">
+        <div class="rec-art">🏋️</div>
+        <h3>Full Body Power</h3>
+        <div class="workout-meta">30 min • Strength</div>
+      </div>
+
+      <div class="card rec-card" onclick="quickWorkout('HIIT Burn')">
+        <div class="rec-art">🔥</div>
+        <h3>HIIT Burn</h3>
+        <div class="workout-meta">20 min • Fat loss</div>
+      </div>
+
+      <div class="card rec-card" onclick="quickWorkout('Dumbbell Builder')">
+        <div class="rec-art">💪</div>
+        <h3>Dumbbell Builder</h3>
+        <div class="workout-meta">25 min • Strength</div>
+      </div>
+
+      <div class="card rec-card" onclick="quickWorkout('Athlete Mobility')">
+        <div class="rec-art">🧘</div>
+        <h3>Athlete Mobility</h3>
+        <div class="workout-meta">20 min • Mobility</div>
+      </div>
+
+      <div class="card rec-card" onclick="quickWorkout('Cardio Blast')">
+        <div class="rec-art">🏃</div>
+        <h3>Cardio Blast</h3>
+        <div class="workout-meta">30 min • Cardio</div>
+      </div>
+
+      <div class="card rec-card" onclick="quickWorkout('Core Builder')">
+        <div class="rec-art">🔥</div>
+        <h3>Core Builder</h3>
+        <div class="workout-meta">18 min • Core</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AI COACH ================= -->
+
+  <section class="page" id="page-coach">
+    <div class="section-head">
+      <div>
+        <h2>AI Coach</h2>
+        <p>Ask anything about your current workout.</p>
+      </div>
+      <button class="btn btn-primary" id="voiceBtn" onclick="startVoice()">🎙 Talk to Coach</button>
+    </div>
+
+    <div class="card chat">
+      <div class="chat-messages" id="chatMessages">
+        <div class="message coach">
+          Hey Alex 👋 I'm your CoachTV AI coach. I can help with your current workout,
+          exercise technique, pacing, rest, and modifications.
+        </div>
+
+        <div class="message coach">
+          Try asking: <strong>"How many reps do I have left?"</strong>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input id="chatInput" placeholder="Ask your coach..." onkeydown="if(event.key==='Enter')sendMessage()" />
+        <button class="btn" onclick="startVoice()">🎙</button>
+        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="grid recommended">
+        <button class="card rec-card" onclick="askPreset('How many reps do I have left?')">
+          <div class="rec-art">🔢</div>
+          <h3>How many reps?</h3>
+          <div class="workout-meta">Ask about your current set</div>
+        </button>
+
+        <button class="card rec-card" onclick="askPreset('Make this workout easier.')">
+          <div class="rec-art">🌿</div>
+          <h3>Make it easier</h3>
+          <div class="workout-meta">Reduce workout intensity</div>
+        </button>
+
+        <button class="card rec-card" onclick="askPreset('I am getting tired.')">
+          <div class="rec-art">😮‍💨</div>
+          <h3>I'm getting tired</h3>
+          <div class="workout-meta">Ask for recovery</div>
+        </button>
+
+        <button class="card rec-card" onclick="askPreset('What is my form score?')">
+          <div class="rec-art">🎯</div>
+          <h3>My form score?</h3>
+          <div class="workout-meta">Check current form</div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROGRESS ================= -->
+
+  <section class="page" id="page-progress">
+    <div class="section-head">
+      <div>
+        <h2>Your Progress</h2>
+        <p>Your training data, visualized.</p>
+      </div>
+      <span class="tag">🔥 6 DAY STREAK</span>
+    </div>
+
+    <div class="grid stat-grid">
+      <div class="card stat-card">
+        <small>Weekly workouts</small>
+        <strong>4</strong>
+        <span>↑ 1 this week</span>
+      </div>
+      <div class="card stat-card">
+        <small>Total minutes</small>
+        <strong>127</strong>
+        <span>↑ 18%</span>
+      </div>
+      <div class="card stat-card">
+        <small>Average form</small>
+        <strong>89%</strong>
+        <span>↑ 5%</span>
+      </div>
+      <div class="card stat-card">
+        <small>Calories</small>
+        <strong>1,240</strong>
+        <span>↑ 12%</span>
+      </div>
+    </div>
+
+    <div class="section grid" style="grid-template-columns:1fr 1fr">
+      <div class="card chart-card">
+        <h3>Workout Frequency</h3>
+        <div class="chart">
+          <svg viewBox="0 0 500 220" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff6a00" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#ff6a00" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 190 L70 150 L140 165 L210 90 L280 120 L350 65 L420 95 L500 35 L500 220 L0 220Z"
+              fill="url(#chartFill)"/>
+            <polyline
+              points="0,190 70,150 140,165 210,90 280,120 350,65 420,95 500,35"
+              fill="none"
+              stroke="#ff6a00"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card chart-card">
+        <h3>Form Score</h3>
+        <div class="chart">
+          <svg viewBox="0 0 500 220" preserveAspectRatio="none">
+            <polyline
+              points="0,170 80,150 160,135 240,140 320,90 400,100 500,45"
+              fill="none"
+              stroke="#35e89a"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div>
+          <h2>AI Insights</h2>
+          <p>Personalized observations from your training history.</p>
+        </div>
+      </div>
+
+      <div class="grid insights">
+        <div class="card insight">
+          <div class="insight-icon">🎯</div>
+          <h3>Form is improving</h3>
+          <p class="muted">Your form is improving fastest during upper-body exercises.</p>
+        </div>
+
+        <div class="card insight">
+          <div class="insight-icon">⚡</div>
+          <h3>HIIT opportunity</h3>
+          <p class="muted">You tend to stop early during HIIT workouts. Try shorter intervals.</p>
+        </div>
+
+        <div class="card insight">
+          <div class="insight-icon">📈</div>
+          <h3>Consistency win</h3>
+          <p class="muted">Your consistency increased 24% this week.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROFILE ================= -->
+
+  <section class="page" id="page-profile">
+    <div class="section-head">
+      <div>
+        <h2>Profile</h2>
+        <p>Your CoachTV training profile.</p>
+      </div>
+      <button class="btn" onclick="editProfile()">Edit Profile</button>
+    </div>
+
+    <div class="profile-layout">
+      <div class="card profile-card">
+        <div class="avatar">A</div>
+        <h2>KSHITIJ</h2>
+        <p class="muted">Intermediate athlete</p>
+        <span class="tag">BUILD STRENGTH</span>
+      </div>
+
+      <div class="card profile-details">
+        <div class="detail-row">
+          <span>Fitness level</span>
+          <strong>Intermediate</strong>
+        </div>
+        <div class="detail-row">
+          <span>Primary goal</span>
+          <strong>Build Strength</strong>
+        </div>
+        <div class="detail-row">
+          <span>Preferred workout</span>
+          <strong>20 minutes</strong>
+        </div>
+        <div class="detail-row">
+          <span>Equipment</span>
+          <strong>Dumbbells</strong>
+        </div>
+        <div class="detail-row">
+          <span>Weekly target</span>
+          <strong>4 workouts</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+
+  <section class="page" id="page-settings">
+    <div class="section-head">
+      <div>
+        <h2>Settings</h2>
+        <p>Configure your CoachTV experience.</p>
+      </div>
+    </div>
+
+    <div class="card settings">
+
+      <div class="setting">
+        <div>
+          <strong>Camera permissions</strong>
+          <small>Allow CoachTV to use your camera for form analysis.</small>
+        </div>
+        <button class="btn" onclick="requestCamera()">Enable Camera</button>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Microphone permissions</strong>
+          <small>Use voice commands with your AI coach.</small>
+        </div>
+        <button class="btn" onclick="startVoice()">Test Microphone</button>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Voice feedback</strong>
+          <small>Coach responses can be spoken aloud.</small>
+        </div>
+        <div class="switch on" id="voiceSwitch" onclick="toggleSwitch(this)"><i></i></div>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Coach personality</strong>
+          <small>Choose how your AI coach communicates.</small>
+        </div>
+        <select style="background:#111722;color:white;border:1px solid var(--border);padding:10px;border-radius:10px">
+          <option>Motivational</option>
+          <option>Calm</option>
+          <option>Direct</option>
+          <option>Friendly</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Units</strong>
+          <small>Choose your preferred measurement system.</small>
+        </div>
+        <select style="background:#111722;color:white;border:1px solid var(--border);padding:10px;border-radius:10px">
+          <option>Metric</option>
+          <option>Imperial</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Accessibility</strong>
+          <small>Increase contrast and interface sizing.</small>
+        </div>
+        <div class="switch" onclick="toggleSwitch(this)"><i></i></div>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>TV display mode</strong>
+          <small>10-foot UI optimized for Fire TV.</small>
+        </div>
+        <div class="switch" id="settingsTvSwitch" onclick="toggleTV()"><i></i></div>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Demo mode</strong>
+          <small>Automatically demonstrate the CoachTV experience.</small>
+        </div>
+        <button class="btn btn-primary" onclick="startDemo()">Launch Demo</button>
+      </div>
+
+      <div class="setting">
+        <div>
+          <strong>Under the Hood</strong>
+          <small>Explore the AI architecture and Amazon technology concept.</small>
+        </div>
+        <button class="btn" onclick="showArchitecture()">View Architecture</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= WORKOUT PLAYER ================= -->
+
+  <section class="page" id="page-workout">
+    <div class="workout-player">
+
+      <div class="exercise-stage">
+
+        <div class="stage-top">
+          <span class="stage-badge">● <span id="cameraStatus">DEMO MODE</span></span>
+          <span class="stage-badge">Workout <span id="workoutPercent">72</span>%</span>
+        </div>
+
+        <div class="coach-figure">
+          <div class="cf-head"></div>
+          <div class="cf-arm left"></div>
+          <div class="cf-arm right"></div>
+          <div class="cf-torso"></div>
+          <div class="cf-leg left"></div>
+          <div class="cf-leg right"></div>
+        </div>
+
+        <div class="skeleton">
+          <div class="joint j1"></div>
+          <div class="joint j2"></div>
+          <div class="joint j3"></div>
+          <div class="joint j4"></div>
+          <div class="joint j5"></div>
+          <div class="joint j6"></div>
+          <div class="joint j7"></div>
+        </div>
+
+        <div class="exercise-label">
+          <div class="big" id="exerciseName">SQUAT</div>
+          <small id="exerciseInstruction">Keep your chest up and drive through your heels.</small>
+        </div>
+
+        <div class="form-overlay">
+          <h4>FORM ANALYSIS</h4>
+          <div class="metric">
+            <span>Rep Count</span>
+            <strong id="repCount" class="good">12</strong>
+          </div>
+          <div class="metric">
+            <span>Form Score</span>
+            <strong id="formScore" class="good">87%</strong>
+          </div>
+          <div class="metric">
+            <span>Posture</span>
+            <strong class="good">Good</strong>
+          </div>
+          <div class="metric">
+            <span>Knee Alignment</span>
+            <strong class="good">Good</strong>
+          </div>
+          <div class="metric">
+            <span>Back Position</span>
+            <strong class="warning">Improve</strong>
+          </div>
+
+          <div id="formWarning" class="form-warning hidden" style="margin-top:10px">
+            ⚠ <strong>FORM CORRECTION</strong><br>
+            Keep your back slightly straighter.
+          </div>
+        </div>
+      </div>
+
+      <div class="workout-side">
+
+        <div class="card side-panel">
+          <div class="side-stat">
+            <div class="side-stat-label">Current Exercise</div>
+            <div class="side-stat-value" id="exerciseNumber">2 / 8</div>
+          </div>
+
+          <div class="side-stat">
+            <div class="side-stat-label">Set</div>
+            <div class="side-stat-value">2 / 4</div>
+          </div>
+
+          <div class="side-stat">
+            <div class="side-stat-label">Target</div>
+            <div class="side-stat-value">
+              <span id="currentReps">12</span> / 15 reps
+            </div>
+          </div>
+
+          <div class="side-stat">
+            <div class="side-stat-label">Rest</div>
+            <div class="side-stat-value" id="restTimer">00:24</div>
+          </div>
+
+          <div class="side-stat">
+            <div class="side-stat-label">Workout Progress</div>
+            <div class="progress-track">
+              <i id="workoutProgress" style="width:72%"></i>
+            </div>
+          </div>
+
+          <div class="ai-status">
+            <span class="dot"></span>
+            Coach AI Active
+          </div>
+        </div>
+
+        <div class="card side-panel">
+          <h3 style="margin-bottom:15px">Camera</h3>
+
+          <div class="camera-panel">
+            <video id="cameraVideo" autoplay playsinline></video>
+
+            <div class="demo-camera" id="demoCamera">
+              <div class="demo-person"></div>
+            </div>
+
+            <div class="camera-label" id="cameraModeLabel">
+              DEMO MODE • POSE SIMULATION
+            </div>
+
+            <div class="camera-toggle">
+              <button class="btn" style="flex:1" onclick="requestCamera()">📷 Live Camera</button>
+              <button class="btn" style="flex:1" onclick="setDemoCamera()">Demo Mode</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card side-panel workout-controls">
+          <button class="btn" onclick="previousExercise()">← Previous</button>
+          <button class="btn btn-primary" id="pauseBtn" onclick="toggleWorkout()">Ⅱ Pause</button>
+          <button class="btn" onclick="nextExercise()">Skip →</button>
+          <button class="btn" onclick="repeatExercise()">↻ Repeat</button>
+          <button class="btn ask-btn" onclick="navigate('coach')">🎙 Ask Coach</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COMPLETION ================= -->
+
+  <section class="page" id="page-completion">
+    <div class="completion">
+
+      <span class="tag">SESSION SAVED</span>
+
+      <h1 style="margin-top:25px">
+        WORKOUT<br><span class="orange">COMPLETE 🔥</span>
+      </h1>
+
+      <div class="score-ring">
+        <div class="score-number">
+          <strong>91</strong>
+          <small>FORM SCORE</small>
+        </div>
+      </div>
+
+      <div class="grid result-grid">
+        <div class="card result-card">
+          <small>Duration</small>
+          <strong>21:42</strong>
+        </div>
+        <div class="card result-card">
+          <small>Calories</small>
+          <strong>184</strong>
+        </div>
+        <div class="card result-card">
+          <small>Exercises</small>
+          <strong>8</strong>
+        </div>
+        <div class="card result-card">
+          <small>Reps</small>
+          <strong>126</strong>
+        </div>
+        <div class="card result-card">
+          <small>Consistency</small>
+          <strong style="color:var(--green)">Excellent</strong>
+        </div>
+      </div>
+
+      <div class="card summary-card">
+        <span class="tag">✦ AI COACH SUMMARY</span>
+        <h3 style="margin-top:18px">Strong session, Alex.</h3>
+        <p>
+          You maintained excellent form throughout most of the workout.
+          Your squat consistency improved compared with your previous session.
+          Your pacing was especially strong during the final two exercises.
+        </p>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+          <div>
+            <strong class="orange">+8%</strong><br>
+            <small class="muted">form score</small>
+          </div>
+          <div>
+            <strong class="orange">+12</strong><br>
+            <small class="muted">reps</small>
+          </div>
+          <div>
+            <strong class="orange">+3 min</strong><br>
+            <small class="muted">longer workout</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn" onclick="navigate('progress')">View Progress</button>
+        <button class="btn btn-primary" onclick="openSetup()">Start Another Workout</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ARCHITECTURE ================= -->
+
+  <section class="page" id="page-architecture">
+
+    <div class="section-head">
+      <div>
+        <h2>Under the Hood</h2>
+        <p>CoachTV prototype architecture.</p>
+      </div>
+      <button class="btn" onclick="navigate('settings')">← Settings</button>
+    </div>
+
+    <div class="card architecture">
+      <span class="tag">PROTOTYPE ARCHITECTURE</span>
+
+      <div class="arch-flow">
+        <div class="arch-node">
+          <div class="arch-icon">👤</div>
+          <strong>User</strong>
+          <small>Voice / Remote</small>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="arch-node">
+          <div class="arch-icon">📺</div>
+          <strong>Fire TV App</strong>
+          <small>TV Interface</small>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="arch-node">
+          <div class="arch-icon">🎙</div>
+          <strong>Input Layer</strong>
+          <small>Voice / Camera</small>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="arch-node">
+          <div class="arch-icon">☁️</div>
+          <strong>Backend</strong>
+          <small>AWS Services</small>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="arch-node">
+          <div class="arch-icon">✦</div>
+          <strong>AI Agent</strong>
+          <small>Workout Reasoning</small>
+        </div>
+
+        <div class="arch-arrow">→</div>
+
+        <div class="arch-node">
+          <div class="arch-icon">🧠</div>
+          <strong>Pose AI</strong>
+          <small>Form Analysis</small>
+        </div>
+      </div>
+
+      <h3>Personalization Loop</h3>
+
+      <div class="arch-flow">
+        <div class="arch-node">
+          <strong>Workout Generator</strong>
+          <small>Goal + Duration + Difficulty</small>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node">
+          <strong>Computer Vision</strong>
+          <small>Pose + Reps + Form</small>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node">
+          <strong>Personalization Engine</strong>
+          <small>Performance History</small>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node">
+          <strong>Progress Database</strong>
+          <small>Local Prototype Storage</small>
+        </div>
+      </div>
+
+      <h3>Amazon Technology Concept</h3>
+
+      <div class="tech-grid">
+        <div class="tech">
+          <strong>📺 Amazon Fire TV</strong>
+          <small>Primary TV experience target.</small>
+        </div>
+
+        <div class="tech">
+          <strong>☁️ Amazon Bedrock</strong>
+          <small>Target AI foundation-model integration.</small>
+        </div>
+
+        <div class="tech">
+          <strong>🧠 AWS AI / Computer Vision</strong>
+          <small>Target backend vision architecture.</small>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:25px;font-size:12px">
+        Prototype note: Amazon cloud integrations shown here are architecture concepts.
+        This single-file demo uses local browser logic and mock AI responses rather than
+        claiming a live AWS integration.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= SETUP MODAL ================= -->
+
+<div class="modal-backdrop hidden" id="setupModal">
+
+  <div class="modal">
+
+    <div class="modal-top">
+      <div>
+        <span class="tag">AI WORKOUT BUILDER</span>
+        <h2 id="setupTitle" style="margin:14px 0 0">What's your goal?</h2>
+      </div>
+      <button class="close" onclick="closeSetup()">×</button>
+    </div>
+
+    <div class="setup-progress" id="setupProgress">
+      <i class="active"></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+
+    <div id="setupContent"></div>
+
+    <div class="setup-footer">
+      <button class="btn" id="setupBack" onclick="setupBack()">← Back</button>
+      <button class="btn btn-primary" id="setupNext" onclick="setupNext()">Continue →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= LOADING MODAL ================= -->
+
+<div class="modal-backdrop hidden" id="loadingModal">
+  <div class="modal loading">
+    <div class="loader"></div>
+    <h2>Building your workout</h2>
+    <p class="loading-step" id="loadingStep">Analyzing your goals...</p>
+  </div>
+</div>
+
+<!-- ================= FIRE TV REMOTE ================= -->
+
+<div class="remote" id="remote">
+  <div class="remote-title">COACHTV REMOTE</div>
+
+  <div class="dpad">
+    <button class="remote-key up" onclick="remoteNav('up')">▲</button>
+    <button class="remote-key left" onclick="remoteNav('left')">◀</button>
+    <button class="remote-key ok" onclick="remoteNav('ok')">OK</button>
+    <button class="remote-key right" onclick="remoteNav('right')">▶</button>
+    <button class="remote-key down" onclick="remoteNav('down')">▼</button>
+  </div>
+
+  <div class="remote-bottom">
+    <button onclick="navigate('home')">HOME</button>
+    <button onclick="history.back()">BACK</button>
+    <button onclick="toggleWorkout()">▶Ⅱ</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   CoachTV — Single File Application
+   ============================================================ */
+
+/* -----------------------------
+   Data Models
+----------------------------- */
+
+const defaultUser = {
+  name: "Alex",
+  fitnessLevel: "Intermediate",
+  goal: "Build Strength",
+  preferredWorkout: "20 minutes",
+  equipment: "Dumbbells",
+  weeklyTarget: 4
+};
+
+const defaultProgress = {
+  workouts: 4,
+  minutes: 127,
+  form: 89,
+  calories: 1240,
+  streak: 6
+};
+
+const exercises = [
+  {
+    name: "SQUAT",
+    instruction: "Keep your chest up and drive through your heels.",
+    target: 15
+  },
+  {
+    name: "PUSH UPS",
+    instruction: "Keep your core tight and lower with control.",
+    target: 12
+  },
+  {
+    name: "DUMBBELL ROW",
+    instruction: "Pull toward your hip while keeping your back neutral.",
+    target: 12
+  },
+  {
+    name: "REVERSE LUNGE",
+    instruction: "Step back softly and keep your front knee aligned.",
+    target: 10
+  },
+  {
+    name: "SHOULDER PRESS",
+    instruction: "Press overhead without arching your lower back.",
+    target: 12
+  },
+  {
+    name: "MOUNTAIN CLIMBER",
+    instruction: "Keep your hips stable as you drive each knee forward.",
+    target: 20
+  },
+  {
+    name: "PLANK",
+    instruction: "Brace your core and maintain a straight line.",
+    target: 30
+  },
+  {
+    name: "GLUTE BRIDGE",
+    instruction: "Squeeze your glutes at the top of each repetition.",
+    target: 15
+  }
+];
+
+let setupStep = 1;
+
+let setupData = {
+  goal: "Build Strength",
+  duration: "20 min",
+  experience: "Intermediate",
+  equipment: "Dumbbells"
+};
+
+let workoutState = {
+  exerciseIndex: 1,
+  reps: 12,
+  form: 87,
+  paused: false,
+  rest: 24,
+  running: false,
+  camera: false
+};
+
+let workoutInterval = null;
+let demoInterval = null;
+let speechRecognition = null;
+
+let user = JSON.parse(localStorage.getItem("coachTVUser")) || defaultUser;
+let progress = JSON.parse(localStorage.getItem("coachTVProgress")) || defaultProgress;
+
+
+/* -----------------------------
+   Persistence
+----------------------------- */
+
+function saveState() {
+  localStorage.setItem("coachTVUser", JSON.stringify(user));
+  localStorage.setItem("coachTVProgress", JSON.stringify(progress));
+}
+
+
+/* -----------------------------
+   Navigation
+----------------------------- */
+
+const pageNames = {
+  home: "Home",
+  workouts: "Workouts",
+  coach: "AI Coach",
+  progress: "Progress",
+  profile: "Profile",
+  settings: "Settings",
+  workout: "Active Workout",
+  completion: "Workout Complete",
+  architecture: "Under the Hood"
+};
+
+function navigate(page) {
+
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.remove("active");
+  });
+
+  const target = document.getElementById("page-" + page);
+
+  if (!target) return;
+
+  target.classList.add("active");
+
+  document.querySelectorAll(".nav button").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.page === page);
+  });
+
+  document.getElementById("breadcrumb").textContent =
+    "CoachTV / " + (pageNames[page] || page);
+
+  if (page === "workout") {
+    startWorkoutEngine();
+  }
+
+  if (page !== "workout") {
+    stopWorkoutEngine();
+  }
+}
+
+document.querySelectorAll(".nav button").forEach(btn => {
+  btn.addEventListener("click", () => navigate(btn.dataset.page));
+});
+
+
+/* -----------------------------
+   Toasts
+----------------------------- */
+
+function toast(message) {
+  const container = document.getElementById("toastContainer");
+
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = message;
+
+  container.appendChild(el);
+
+  setTimeout(() => {
+    el.style.opacity = "0";
+    el.style.transform = "translateX(20px)";
+    setTimeout(() => el.remove(), 250);
+  }, 3000);
+}
+
+
+/* -----------------------------
+   Setup Wizard
+----------------------------- */
+
+const setupScreens = [
+  {
+    title: "What's your goal?",
+    options: [
+      ["Build Strength", "Build muscle & strength"],
+      ["Lose Fat", "Burn calories & improve conditioning"],
+      ["Improve Fitness", "Build endurance"],
+      ["Improve Mobility", "Move better & recover"],
+      ["Stay Active", "Keep moving consistently"]
+    ],
+    key: "goal"
+  },
+  {
+    title: "How much time do you have?",
+    options: [
+      ["5 min", "Quick reset"],
+      ["10 min", "Fast session"],
+      ["20 min", "Balanced workout"],
+      ["30 min", "Full session"],
+      ["45+ min", "Deep training"]
+    ],
+    key: "duration"
+  },
+  {
+    title: "What's your experience?",
+    options: [
+      ["Beginner", "New to structured training"],
+      ["Intermediate", "Regular training"],
+      ["Advanced", "Experienced athlete"]
+    ],
+    key: "experience"
+  },
+  {
+    title: "What equipment do you have?",
+    options: [
+      ["None", "Bodyweight only"],
+      ["Dumbbells", "Free weights"],
+      ["Resistance Bands", "Bands & bodyweight"],
+      ["Full Gym", "Complete equipment"]
+    ],
+    key: "equipment"
+  }
+];
+
+function openSetup() {
+  setupStep = 1;
+  renderSetup();
+  document.getElementById("setupModal").classList.remove("hidden");
+}
+
+function closeSetup() {
+  document.getElementById("setupModal").classList.add("hidden");
+}
+
+function renderSetup() {
+
+  const screen = setupScreens[setupStep - 1];
+
+  document.getElementById("setupTitle").textContent = screen.title;
+
+  const progressEls = document.querySelectorAll("#setupProgress i");
+
+  progressEls.forEach((el, i) => {
+    el.classList.toggle("active", i < setupStep);
+  });
+
+  const content = document.getElementById("setupContent");
+
+  content.innerHTML = `
+    <div class="option-grid">
+      ${screen.options.map(option => `
+        <button
+          class="option ${setupData[screen.key] === option[0] ? "selected" : ""}"
+          onclick="selectSetupOption('${screen.key}', '${option[0]}')"
+        >
+          <strong>${option[0]}</strong>
+          <small>${option[1]}</small>
+        </button>
+      `).join("")}
+    </div>
+  `;
+
+  document.getElementById("setupBack").style.visibility =
+    setupStep === 1 ? "hidden" : "visible";
+
+  document.getElementById("setupNext").textContent =
+    setupStep === 4 ? "Generate Workout ✦" : "Continue →";
+}
+
+function selectSetupOption(key, value) {
+  setupData[key] = value;
+  renderSetup();
+}
+
+function setupBack() {
+  if (setupStep > 1) {
+    setupStep--;
+    renderSetup();
+  }
+}
+
+function setupNext() {
+
+  if (setupStep < 4) {
+    setupStep++;
+    renderSetup();
+    return;
+  }
+
+  closeSetup();
+  generateWorkout();
+}
+
+function generateWorkout() {
+
+  const modal = document.getElementById("loadingModal");
+  const step = document.getElementById("loadingStep");
+
+  modal.classList.remove("hidden");
+
+  const messages = [
+    "Analyzing your goals...",
+    "Selecting exercises...",
+    "Balancing intensity...",
+    "Building your workout...",
+    "Preparing your virtual coach..."
+  ];
+
+  let index = 0;
+
+  const interval = setInterval(() => {
+
+    step.textContent = messages[index++];
+
+    if (index >= messages.length) {
+
+      clearInterval(interval);
+
+      setTimeout(() => {
+
+        modal.classList.add("hidden");
+
+        workoutState.exerciseIndex = 1;
+        workoutState.reps = 12;
+        workoutState.form = 87;
+        workoutState.paused = false;
+        workoutState.rest = 24;
+
+        navigate("workout");
+
+        toast("AI workout generated for " + setupData.goal);
+
+      }, 500);
+    }
+
+  }, 650);
+}
+
+function quickWorkout(title) {
+
+  setupData.goal = "Build Strength";
+  setupData.duration = title.includes("30") ? "30 min" :
+                       title.includes("15") ? "15 min" :
+                       title.includes("10") ? "10 min" : "20 min";
+
+  setupData.experience = "Intermediate";
+  setupData.equipment = "Dumbbells";
+
+  generateWorkout();
+}
+
+
+/* -----------------------------
+   Workout Engine
+----------------------------- */
+
+function startWorkoutEngine() {
+
+  if (workoutInterval) return;
+
+  workoutState.running = true;
+
+  workoutInterval = setInterval(() => {
+
+    if (workoutState.paused) return;
+
+    if (workoutState.rest > 0) {
+      workoutState.rest--;
+    } else {
+      workoutState.reps++;
+
+      if (workoutState.reps > 15) {
+        workoutState.reps = 1;
+      }
+    }
+
+    /*
+      Simulated computer vision:
+      form gradually changes and occasionally becomes incorrect.
+    */
+
+    workoutState.form += Math.random() > .7 ? -2 : 1;
+
+    if (workoutState.form > 96) workoutState.form = 96;
+    if (workoutState.form < 78) workoutState.form = 78;
+
+    updateWorkoutUI();
+
+  }, 1000);
+}
+
+function stopWorkoutEngine() {
+
+  if (workoutInterval) {
+    clearInterval(workoutInterval);
+    workoutInterval = null;
+  }
+
+  workoutState.running = false;
+}
+
+function updateWorkoutUI() {
+
+  const exercise = exercises[workoutState.exerciseIndex];
+
+  document.getElementById("exerciseName").textContent = exercise.name;
+  document.getElementById("exerciseInstruction").textContent = exercise.instruction;
+
+  document.getElementById("exerciseNumber").textContent =
+    `${workoutState.exerciseIndex + 1} / ${exercises.length}`;
+
+  document.getElementById("repCount").textContent = workoutState.reps;
+  document.getElementById("currentReps").textContent = workoutState.reps;
+
+  document.getElementById("formScore").textContent =
+    workoutState.form + "%";
+
+  document.getElementById("restTimer").textContent =
+    formatTime(workoutState.rest);
+
+  const percent =
+    Math.round(
+      ((workoutState.exerciseIndex + workoutState.reps / 15) /
+       exercises.length) * 100
+    );
+
+  const safePercent = Math.min(100, Math.max(0, percent));
+
+  document.getElementById("workoutProgress").style.width =
+    safePercent + "%";
+
+  document.getElementById("workoutPercent").textContent =
+    safePercent;
+
+  const warning = document.getElementById("formWarning");
+
+  if (workoutState.form < 82) {
+    warning.classList.remove("hidden");
+  } else {
+    warning.classList.add("hidden");
+  }
+
+  if (workoutState.form >= 88) {
+    document.getElementById("formScore").className = "good";
+  } else {
+    document.getElementById("formScore").className = "warning";
+  }
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+}
+
+function toggleWorkout() {
+
+  workoutState.paused = !workoutState.paused;
+
+  document.getElementById("pauseBtn").textContent =
+    workoutState.paused ? "▶ Resume" : "Ⅱ Pause";
+
+  toast(workoutState.paused ? "Workout paused" : "Workout resumed");
+}
+
+function nextExercise() {
+
+  if (workoutState.exerciseIndex >= exercises.length - 1) {
+    finishWorkout();
+    return;
+  }
+
+  workoutState.exerciseIndex++;
+  workoutState.reps = 0;
+  workoutState.rest = 24;
+
+  toast("Next exercise: " + exercises[workoutState.exerciseIndex].name);
+
+  updateWorkoutUI();
+}
+
+function previousExercise() {
+
+  if (workoutState.exerciseIndex > 0) {
+    workoutState.exerciseIndex--;
+    workoutState.reps = 1;
+    toast("Previous exercise");
+    updateWorkoutUI();
+  }
+}
+
+function repeatExercise() {
+  workoutState.reps = 0;
+  workoutState.rest = 10;
+  toast("Exercise restarted");
+}
+
+function finishWorkout() {
+
+  stopWorkoutEngine();
+
+  progress.workouts++;
+  progress.minutes += 22;
+  progress.calories += 184;
+  progress.form = Math.round((progress.form + 91) / 2);
+
+  saveState();
+
+  navigate("completion");
+
+  toast("Workout saved to your progress");
+}
+
+
+/* -----------------------------
+   Camera / Computer Vision
+----------------------------- */
+
+async function requestCamera() {
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast("Camera unavailable — switching to Demo Mode");
+    setDemoCamera();
+    return;
+  }
+
+  try {
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user"
+      },
+      audio: false
+    });
+
+    const video = document.getElementById("cameraVideo");
+
+    video.srcObject = stream;
+    video.style.display = "block";
+
+    document.getElementById("demoCamera").style.display = "none";
+
+    document.getElementById("cameraStatus").textContent = "LIVE CAMERA MODE";
+    document.getElementById("cameraModeLabel").textContent =
+      "LIVE CAMERA • POSE INPUT";
+
+    workoutState.camera = true;
+
+    toast("Live camera enabled");
+
+  } catch (error) {
+
+    setDemoCamera();
+    toast("Camera permission unavailable — Demo Mode active");
+  }
+}
+
+function setDemoCamera() {
+
+  const video = document.getElementById("cameraVideo");
+
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.stop());
+  }
+
+  video.style.display = "none";
+
+  document.getElementById("demoCamera").style.display = "grid";
+
+  document.getElementById("cameraStatus").textContent =
+    "DEMO MODE";
+
+  document.getElementById("cameraModeLabel").textContent =
+    "DEMO MODE • POSE SIMULATION";
+
+  workoutState.camera = false;
+}
+
+
+/* -----------------------------
+   AI Coach
+----------------------------- */
+
+const coachRules = [
+  {
+    keywords: ["reps", "rep", "left"],
+    response: () =>
+      `You have ${Math.max(0, 15 - workoutState.reps)} reps remaining in this set. Keep your pace controlled.`
+  },
+  {
+    keywords: ["easier", "easy"],
+    response: () =>
+      "I'll reduce the intensity. Try a lower-impact variation and take an extra 30-second recovery period."
+  },
+  {
+    keywords: ["tired", "fatigue"],
+    response: () =>
+      "Listen to your body. I'll add recovery time and reduce the next exercise intensity."
+  },
+  {
+    keywords: ["form", "score"],
+    response: () =>
+      `Your current simulated form score is ${workoutState.form}%. Focus on controlled movement and consistent alignment.`
+  },
+  {
+    keywords: ["knee", "knees", "pain"],
+    response: () =>
+      "Stop if you're experiencing pain. You can reduce the range of motion or switch to a lower-impact exercise."
+  },
+  {
+    keywords: ["pause"],
+    response: () => {
+      if (!workoutState.paused) toggleWorkout();
+      return "I've paused the workout for you.";
+    }
+  },
+  {
+    keywords: ["skip"],
+    response: () => {
+      nextExercise();
+      return "Skipping this exercise and moving to the next one.";
+    }
+  },
+  {
+    keywords: ["repeat"],
+    response: () => {
+      repeatExercise();
+      return "Repeating the current exercise.";
+    }
+  },
+  {
+    keywords: ["rest"],
+    response: () => {
+      workoutState.rest = 30;
+      return "I've started a 30-second recovery timer.";
+    }
+  }
+];
+
+function getCoachResponse(text) {
+
+  const lower = text.toLowerCase();
+
+  for (const rule of coachRules) {
+
+    if (rule.keywords.some(k => lower.includes(k))) {
+      return rule.response();
+    }
+  }
+
+  return "I'm with you. Based on your current workout, keep your movements controlled, focus on your breathing, and prioritize good form over speed.";
+}
+
+function addMessage(text, type) {
+
+  const messages = document.getElementById("chatMessages");
+
+  const message = document.createElement("div");
+
+  message.className = "message " + type;
+
+  message.textContent = text;
+
+  messages.appendChild(message);
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function sendMessage() {
+
+  const input = document.getElementById("chatInput");
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  input.value = "";
+
+  const typing = document.createElement("div");
+  typing.className = "message coach";
+  typing.textContent = "Coach is thinking...";
+  typing.id = "typingMessage";
+
+  document.getElementById("chatMessages").appendChild(typing);
+
+  setTimeout(() => {
+
+    typing.remove();
+
+    const response = getCoachResponse(text);
+
+    addMessage(response, "coach");
+
+    speak(response);
+
+  }, 650);
+}
+
+function askPreset(text) {
+
+  navigate("coach");
+
+  setTimeout(() => {
+
+    document.getElementById("chatInput").value = text;
+
+    sendMessage();
+
+  }, 150);
+}
+
+
+/* -----------------------------
+   Voice Recognition
+----------------------------- */
+
+function startVoice() {
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+
+    toast("Speech recognition unavailable. Use the text input instead.");
+    return;
+  }
+
+  if (speechRecognition) {
+    speechRecognition.stop();
+    speechRecognition = null;
+  }
+
+  speechRecognition = new SpeechRecognition();
+
+  speechRecognition.lang = "en-US";
+  speechRecognition.interimResults = false;
+  speechRecognition.continuous = false;
+
+  const btn = document.getElementById("voiceBtn");
+
+  if (btn) {
+    btn.classList.add("mic-listening");
+    btn.textContent = "● Listening...";
+  }
+
+  speechRecognition.onresult = event => {
+
+    const transcript =
+      event.results[0][0].transcript;
+
+    document.getElementById("chatInput").value = transcript;
+
+    sendMessage();
+  };
+
+  speechRecognition.onerror = () => {
+    toast("Voice input failed. Try typing instead.");
+  };
+
+  speechRecognition.onend = () => {
+
+    if (btn) {
+      btn.classList.remove("mic-listening");
+      btn.textContent = "🎙 Talk to Coach";
+    }
+
+    speechRecognition = null;
+  };
+
+  speechRecognition.start();
+
+  toast("Listening for your command...");
+}
+
+function speak(text) {
+
+  const voiceSwitch =
+    document.getElementById("voiceSwitch");
+
+  if (voiceSwitch && !voiceSwitch.classList.contains("on")) {
+    return;
+  }
+
+  if (!window.speechSynthesis) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  utterance.rate = .95;
+  utterance.pitch = .95;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+
+/* -----------------------------
+   Settings
+----------------------------- */
+
+function toggleSwitch(el) {
+  el.classList.toggle("on");
+}
+
+function toggleTV() {
+
+  const tvSwitch = document.getElementById("tvSwitch");
+  const settingsSwitch = document.getElementById("settingsTvSwitch");
+
+  document.body.classList.toggle("tv-mode");
+
+  const active = document.body.classList.contains("tv-mode");
+
+  tvSwitch.classList.toggle("on", active);
+
+  if (settingsSwitch) {
+    settingsSwitch.classList.toggle("on", active);
+  }
+
+  document.getElementById("remote").classList.toggle("visible", active);
+
+  toast(active ? "10-foot TV Mode enabled" : "TV Mode disabled");
+}
+
+document.getElementById("tvSwitch").addEventListener("click", toggleTV);
+
+
+/* -----------------------------
+   Profile
+----------------------------- */
+
+function editProfile() {
+
+  const name = prompt("Name", user.name);
+  if (!name) return;
+
+  user.name = name;
+
+  saveState();
+
+  toast("Profile updated");
+}
+
+
+/* -----------------------------
+   Demo Mode
+----------------------------- */
+
+function startDemo() {
+
+  toast("Hackathon Demo Mode starting...");
+
+  document.getElementById("setupModal").classList.add("hidden");
+
+  setupData = {
+    goal: "Build Strength",
+    duration: "20 min",
+    experience: "Intermediate",
+    equipment: "Dumbbells"
+  };
+
+  generateWorkout();
+
+  setTimeout(() => {
+
+    /*
+      Accelerated demo:
+      normal workout experience is represented,
+      while reps update quickly for a 2–3 minute demo.
+    */
+
+    startDemoSimulation();
+
+  }, 4300);
+}
+
+function startDemoSimulation() {
+
+  let phase = 0;
+
+  if (demoInterval) clearInterval(demoInterval);
+
+  demoInterval = setInterval(() => {
+
+    phase++;
+
+    if (phase === 1) {
+      toast("AI workout generated");
+    }
+
+    if (phase % 5 === 0) {
+      workoutState.reps += 2;
+
+      if (workoutState.reps >= 15) {
+        workoutState.reps = 15;
+      }
+
+      updateWorkoutUI();
+    }
+
+    if (phase === 10) {
+      toast("Computer vision: movement detected");
+    }
+
+    if (phase === 18) {
+      document.getElementById("formWarning").classList.remove("hidden");
+      workoutState.form = 78;
+      updateWorkoutUI();
+      toast("AI form correction detected");
+    }
+
+    if (phase === 25) {
+      document.getElementById("formWarning").classList.add("hidden");
+      workoutState.form = 94;
+      updateWorkoutUI();
+      toast("Form improved ✓");
+    }
+
+    if (phase === 35) {
+      nextExercise();
+    }
+
+    if (phase === 55) {
+      nextExercise();
+    }
+
+    if (phase >= 75) {
+
+      clearInterval(demoInterval);
+      demoInterval = null;
+
+      finishWorkout();
+
+      toast("Demo complete");
+    }
+
+  }, 1000);
+}
+
+
+/* -----------------------------
+   Architecture
+----------------------------- */
+
+function showArchitecture() {
+  navigate("architecture");
+}
+
+
+/* -----------------------------
+   Fire TV Remote Navigation
+----------------------------- */
+
+let focusedElementIndex = 0;
+
+function getFocusableElements() {
+
+  return [...document.querySelectorAll(
+    ".page.active button, .page.active .card"
+  )].filter(el => {
+
+    const rect = el.getBoundingClientRect();
+
+    return rect.width > 0 &&
+           rect.height > 0;
+  });
+}
+
+function applyTVFocus() {
+
+  const items = getFocusableElements();
+
+  if (!items.length) return;
+
+  items.forEach(item => item.classList.remove("tv-focus"));
+
+  focusedElementIndex =
+    Math.max(0, Math.min(focusedElementIndex, items.length - 1));
+
+  items[focusedElementIndex].classList.add("tv-focus");
+
+  items[focusedElementIndex].scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+}
+
+function remoteNav(direction) {
+
+  const items = getFocusableElements();
+
+  if (!items.length) return;
+
+  if (direction === "right" || direction === "down") {
+    focusedElementIndex++;
+  }
+
+  if (direction === "left" || direction === "up") {
+    focusedElementIndex--;
+  }
+
+  if (focusedElementIndex >= items.length) {
+    focusedElementIndex = 0;
+  }
+
+  if (focusedElementIndex < 0) {
+    focusedElementIndex = items.length - 1;
+  }
+
+  applyTVFocus();
+}
+
+function remoteActivate() {
+
+  const items = getFocusableElements();
+
+  if (items[focusedElementIndex]) {
+    items[focusedElementIndex].click();
+  }
+}
+
+function handleKeyboard(e) {
+
+  if (!document.body.classList.contains("tv-mode")) return;
+
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Enter"].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  if (e.key === "ArrowRight") remoteNav("right");
+  if (e.key === "ArrowLeft") remoteNav("left");
+  if (e.key === "ArrowUp") remoteNav("up");
+  if (e.key === "ArrowDown") remoteNav("down");
+
+  if (e.key === "Enter") remoteActivate();
+
+  if (e.key === "Escape") navigate("home");
+}
+
+document.addEventListener("keydown", handleKeyboard);
+
+
+/* -----------------------------
+   Init
+----------------------------- */
+
+function init() {
+
+  document.getElementById("remote").classList.remove("visible");
+
+  updateWorkoutUI();
+
+  /*
+    Persist a sample workout history so
+    the demo feels populated immediately.
+  */
+
+  if (!localStorage.getItem("coachTVInitialized")) {
+
+    localStorage.setItem("coachTVInitialized", "true");
+
+    saveState();
+  }
+
+  console.log(
+    "%cCoachTV%c — AI Fitness Coach Prototype",
+    "color:#ff6a00;font-weight:900;font-size:18px",
+    "color:white"
+  );
+
+  console.log(
+    "Prototype integrations: AI service, pose detection, AWS/Bedrock are abstracted/mocked."
+  );
+}
+
+init();
+</script>
+
+</body>
+</html>
